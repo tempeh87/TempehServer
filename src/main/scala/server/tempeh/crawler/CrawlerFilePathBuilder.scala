@@ -43,14 +43,13 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
         left.getName.toLong > right.getName.toLong
       })
       .map(folder => {
-        val episodeJson = Source.fromFile(s"${folder.getAbsolutePath}/$dataName").getLines().mkString(sep)
-        val episode = new Gson().fromJson(episodeJson, classOf[Episode])
-        episode
+        val episodeEncrypted = Source.fromFile(s"${folder.getAbsolutePath}/$dataName").mkString
+        episodeEncrypted
       })
       .grouped(groupBy)
       .zipWithIndex
       .foreach(groupWithIndex => {
-        val (episodes: Array[Episode], index: Int) = groupWithIndex
+        val (episodes: Array[String], index: Int) = groupWithIndex
         val fileToWrite = new File(s"$indexParentFolderPath/$index.txt")
         if (!fileToWrite.getParentFile.exists()) {
           fileToWrite.getParentFile.mkdirs()
@@ -67,7 +66,7 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
     val fileToSave = new File(s"$dataParentFolderPath/${System.currentTimeMillis()}/$dataName")
     fileToSave.getParentFile.mkdirs()
     val fw = new FileWriter(fileToSave)
-    fw.write(new Gson().toJson(episode))
+    fw.write(Episode.encrypt(episode))
     fw.flush()
     fw.close()
   }
