@@ -26,10 +26,14 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
   val indexParentFolderPath: String = s"$dataSourcePath/index"
   val sep = "\r\n"
   val dataName = "episode.txt"
-  val groupBy = 50
+  val groupBy = 50 //magic!
 
   def getTotalEpisodeSize: Int = {
-    new File(dataParentFolderPath).listFiles().count(_.isDirectory)
+    val dataParent = new File(dataParentFolderPath)
+    if(!dataParent.exists()){
+      dataParent.mkdirs()
+    }
+    dataParent.listFiles().count(_.isDirectory)
   }
 
   def clearIndexFolder: Unit = {
@@ -81,7 +85,7 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
         left.getName.toLong > right.getName.toLong
       }).head
       val fileName = s"${latest.getAbsolutePath}/$dataName"
-      Some(new Gson().fromJson(Source.fromFile(fileName).getLines().mkString(sep), classOf[Episode]))
+      Some(Episode.decrypt(Source.fromFile(fileName).mkString))
     }
   }
 
