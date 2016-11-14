@@ -72,6 +72,7 @@ class Science60sCrawler(val root: String) {
     * @param url : https://www.scientificamerican.com/podcast/episode/orangutan-picks-cocktail-by-seeing-ingredients/
     * */
   def extractHyperLinkToEpisode(url: String): Episode = {
+    Thread.sleep(1000)
     val document = Jsoup.connect(url).timeout(timeout).get()
     val title = document.select("h3").first().text().trim
     val transcript = document.select("div.transcript__inner p").asScala.map(_.text()).mkString("\r\n").replaceAll("\\[.*?\\]", "").trim
