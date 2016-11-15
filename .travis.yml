@@ -2,14 +2,14 @@ language: scala
 scala:
 - 2.11.2
 script:
-- cd TempehServer/src/main/resources/static
 - sbt ++$TRAVIS_SCALA_VERSION run
 after_success:
 - git config --global user.email tempeh87@gmail.com
 - git config --global user.name tempeh87
 - git config credential.helper "store --file=.git/credentials"
 - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
+- git checkout master
 - git status
 - git add .
-- git commit -m "[ci skip] update files"
+- git commit -m "[ci skip] daily update"
 - git push origin master
