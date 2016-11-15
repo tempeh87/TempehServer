@@ -69,6 +69,7 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
     println(s"persisting.. ${episode.title}")
     val fileToSave = new File(s"$dataParentFolderPath/${System.currentTimeMillis()}/$dataName")
     fileToSave.getParentFile.mkdirs()
+    println(s"save to.. ${fileToSave.getAbsolutePath}")
     val fw = new FileWriter(fileToSave)
     fw.write(Episode.encrypt(episode))
     fw.flush()

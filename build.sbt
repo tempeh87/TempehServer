@@ -11,3 +11,5 @@ libraryDependencies += "com.google.code.gson" % "gson" % "2.7"
 libraryDependencies += "org.jsoup" % "jsoup" % "1.10.1"
 
 libraryDependencies += "commons-io" % "commons-io" % "2.5"
+
+mainClass in (Compile, run) := Some("server.tempeh.crawler.Main")
