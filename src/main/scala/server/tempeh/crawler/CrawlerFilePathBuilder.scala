@@ -65,6 +65,16 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
       })
   }
 
+  def findLatestFolderName: String = {
+    new File(dataParentFolderPath).listFiles().filter(_.isDirectory).reduce((l, r) => {
+      if (l.getName.toLong > r.getName.toLong) {
+        l
+      } else {
+        r
+      }
+    }).getName
+  }
+
   def saveEpisode(episode: Episode): Unit = {
     println(s"persisting.. ${episode.title}")
     val fileToSave = new File(s"$dataParentFolderPath/${System.currentTimeMillis()}/$dataName")
@@ -103,17 +113,17 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
     }
   }
 
-  def findLastEpisode: Option[Episode] = {
+  def findLastEpisode: String = {
     val last = findLastUpdated()
     if (last.isDefined) {
       val episodeList = last.get
       if (episodeList.nonEmpty) {
-        Some(episodeList.head._1)
+        episodeList.head._1.url
       } else {
-        None
+        ""
       }
     } else {
-      None
+      ""
     }
   }
 }

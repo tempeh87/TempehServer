@@ -16,10 +16,10 @@ class Science60sCrawler(val root: String) {
   val pathBuilder: CrawlerFilePathBuilder = new CrawlerFilePathBuilder(root, DataSource.Science60s)
 
   def start(): Boolean = {
-    val before = pathBuilder.getTotalEpisodeSize
+    val before = pathBuilder.findLatestFolderName
     crawl()
-    val after = pathBuilder.getTotalEpisodeSize
-    val changed = (after - before) > 0
+    val after = pathBuilder.findLatestFolderName
+    val changed = !after.equals(before)
     if (changed) {
       buildIndex()
     }
@@ -60,7 +60,11 @@ class Science60sCrawler(val root: String) {
     find match {
       case Some(obj) =>
         val ((episode, _), index) = obj
-        val (remove, _) = crawlUntil.splitAt(index)
+        val (remove, _) = crawlUntil.sortWith((l,r)=>{
+          val episodeFileL = l._2.getParentFile.getName.toDouble
+          val episodeFileR = r._2.getParentFile.getName.toDouble
+          episodeFileL > episodeFileR
+        }).splitAt(index)
         if (remove.nonEmpty) {
           remove.foreach(ef => {
             val (_, f) = ef
@@ -91,7 +95,7 @@ class Science60sCrawler(val root: String) {
   /** *
     *
     * @param url : https://www.scientificamerican.com/podcast/episode/orangutan-picks-cocktail-by-seeing-ingredients/
-    * */
+    **/
   def extractHyperLinkToEpisode(url: String): Episode = {
     Thread.sleep(1000)
     val document = Jsoup.connect(url).timeout(timeout).get()
