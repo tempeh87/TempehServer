@@ -30,7 +30,7 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
 
   def getTotalEpisodeSize: Int = {
     val dataParent = new File(dataParentFolderPath)
-    if(!dataParent.exists()){
+    if (!dataParent.exists()) {
       dataParent.mkdirs()
     }
     dataParent.listFiles().count(_.isDirectory)
@@ -76,7 +76,7 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
     fw.close()
   }
 
-  def findLastUpdated(): Option[Episode] = {
+  def findLastUpdated(): Option[List[(Episode, File)]] = {
     new File(dataParentFolderPath).mkdirs()
     val folders = new File(dataParentFolderPath).listFiles()
     if (folders.isEmpty) {
@@ -84,18 +84,36 @@ class CrawlerFilePathBuilder(val rootPath: String, val dataSource: DataSource) {
     } else {
       val latest = folders.filter(_.isDirectory).sortWith((left, right) => {
         left.getName.toLong > right.getName.toLong
-      }).head
-      val fileName = s"${latest.getAbsolutePath}/$dataName"
-      Some(Episode.decrypt(Source.fromFile(fileName).mkString))
+      })
+        .take(3)
+        .map(file => {
+          val fileName = s"${file.getAbsolutePath}/$dataName"
+          (Episode.decrypt(Source.fromFile(fileName).mkString), new File(fileName))
+        }).toList
+      Some(latest)
     }
   }
 
-  def findLastUrl: String = {
+  def findLastEpisodes: List[(Episode, File)] = {
     val last = findLastUpdated()
     if (last.isDefined) {
-      last.get.url
+      last.get
     } else {
-      ""
+      Nil
+    }
+  }
+
+  def findLastEpisode: Option[Episode] = {
+    val last = findLastUpdated()
+    if (last.isDefined) {
+      val episodeList = last.get
+      if (episodeList.nonEmpty) {
+        Some(episodeList.head._1)
+      } else {
+        None
+      }
+    } else {
+      None
     }
   }
 }

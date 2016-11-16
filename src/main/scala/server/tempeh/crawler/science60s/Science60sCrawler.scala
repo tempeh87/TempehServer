@@ -1,5 +1,8 @@
 package server.tempeh.crawler.science60s
 
+import java.io.File
+
+import org.apache.commons.io.FileUtils
 import org.jsoup.Jsoup
 import server.tempeh.category.DataSource
 import server.tempeh.crawler.CrawlerFilePathBuilder
@@ -24,11 +27,12 @@ class Science60sCrawler(val root: String) {
   }
 
   def crawl(): Unit = {
-    val lastFind = pathBuilder.findLastUrl
-    val startIndex = findStartIndex(1, lastFind)
+    val lastFind = pathBuilder.findLastEpisodes
+    val startIndex = findStartIndexAndRemoveNonExist(1, lastFind)
     println(s"start index: $startIndex")
+    val modifiedStopper = pathBuilder.findLastEpisode
     (startIndex to 1 by -1).toStream.foreach(index => {
-      extractEpisodeIndex(buildLinkWithIndex(index)).toStream.takeWhile(_ != lastFind).reverse.foreach(link => {
+      extractEpisodeIndex(buildLinkWithIndex(index)).toStream.takeWhile(_ != modifiedStopper).reverse.foreach(link => {
         val episode = extractHyperLinkToEpisode(link)
         pathBuilder.saveEpisode(episode)
       })
@@ -44,13 +48,29 @@ class Science60sCrawler(val root: String) {
     pathBuilder.getTotalEpisodeSize
   }
 
-  def findStartIndex(currentIndex: Int, crawlUntil: String): Int = {
+  def findStartIndexAndRemoveNonExist(currentIndex: Int, crawlUntil: List[(Episode, File)]): Int = {
     val url = buildLinkWithIndex(currentIndex)
+    println(s"trying $url")
     val links = extractEpisodeIndex(url)
-    if (links.contains(crawlUntil) || links.isEmpty) {
-      currentIndex
-    } else {
-      findStartIndex(currentIndex + 1, crawlUntil)
+    val find: Option[((Episode, File), Int)] = crawlUntil.zipWithIndex.find(ef => {
+      val episode: Episode = ef._1._1
+      links.contains(episode.url)
+    })
+
+    find match {
+      case Some(obj) =>
+        val ((episode, _), index) = obj
+        val (remove, _) = crawlUntil.splitAt(index)
+        if (remove.nonEmpty) {
+          remove.foreach(ef => {
+            val (_, f) = ef
+            FileUtils.deleteDirectory(f.getParentFile)
+            println(s"remove ${episode.title}")
+          })
+        }
+        currentIndex
+      case None =>
+        findStartIndexAndRemoveNonExist(currentIndex + 1, crawlUntil)
     }
   }
 
