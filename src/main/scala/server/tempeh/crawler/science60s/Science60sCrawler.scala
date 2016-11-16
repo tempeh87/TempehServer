@@ -26,6 +26,7 @@ class Science60sCrawler(val root: String) {
   def crawl(): Unit = {
     val lastFind = pathBuilder.findLastUrl
     val startIndex = findStartIndex(1, lastFind)
+    println(s"start index: $startIndex")
     (startIndex to 1 by -1).toStream.foreach(index => {
       extractEpisodeIndex(buildLinkWithIndex(index)).toStream.takeWhile(_ != lastFind).reverse.foreach(link => {
         val episode = extractHyperLinkToEpisode(link)

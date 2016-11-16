@@ -9,6 +9,7 @@ object Main {
     val currentPath = new File(getClass.getResource(".").toURI).getAbsolutePath
     val resource = currentPath.split("/target/").head
     val staticFileRoot = s"$resource/src/main/resources/static"
+    println(staticFileRoot)
     val science60sCrawler = new Science60sCrawler(staticFileRoot)
     if (science60sCrawler.start()) {
       //update

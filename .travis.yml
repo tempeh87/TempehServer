@@ -15,6 +15,6 @@ after_success:
 after_script:
 - git checkout master
 - date > lastUpdate.txt
-- git add .
+- git add lastUpdate.txt
 - git commit -m "[ci skip] Daily update"
 - git push origin master
