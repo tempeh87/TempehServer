@@ -10,11 +10,5 @@ after_success:
 - echo "https://${GH_TOKEN}:@github.com" > .git/credentials
 - git checkout master
 - git add .
-- git commit -m "[ci skip] daily update"
-- git push origin master
-after_script:
-- git checkout master
-- date > lastUpdate.txt
-- git add lastUpdate.txt
-- git commit -m "[ci skip] Daily update"
+- git commit -m "daily update"
 - git push origin master
