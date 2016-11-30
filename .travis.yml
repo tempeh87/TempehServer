@@ -3,7 +3,7 @@ scala:
 - 2.11.2
 script:
 - sbt ++$TRAVIS_SCALA_VERSION run
-after_success:
+after_failure:
 - git config --global user.email tempeh87@gmail.com
 - git config --global user.name tempeh87
 - git config credential.helper "store --file=.git/credentials"

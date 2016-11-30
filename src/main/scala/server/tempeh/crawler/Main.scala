@@ -11,11 +11,11 @@ object Main {
     val staticFileRoot = s"$resource/src/main/resources/static"
     println(staticFileRoot)
     val science60sCrawler = new Science60sCrawler(staticFileRoot)
-    if (science60sCrawler.start()) {
-      //update
+    if (!science60sCrawler.start()) {
+      //nothing to change
       System.exit(0)
     } else {
-      //failed
+      //update
       System.exit(1)
     }
   }
